@@ -107,6 +107,4 @@ We maintain a strict testing suite to ensure the "Neural Flow" remains accurate.
 > [!TIP]
 > Run `npm run test` to verify the adaptive calibration matrix before deploying new logic.
 
----
-
-Built with ❤️ by the **Antigravity** team.
+Made by -Sarthak Roy
