@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert';
-import { practiceService } from '../services/practiceService.js';
+import { practiceService, AttemptWithQuestion } from '../services/practiceService.js';
 
 test('adaptive logic: initial state should be MEDIUM', () => {
   const result = practiceService.calculateTargetDifficulty([]);
@@ -9,14 +9,14 @@ test('adaptive logic: initial state should be MEDIUM', () => {
 
 test('adaptive logic: high accuracy should increase difficulty', () => {
   // Case: EASY -> MEDIUM
-  const attemptsEasy = [
+  const attemptsEasy: AttemptWithQuestion[] = [
     { isCorrect: true, question: { difficulty: 'EASY' } },
     { isCorrect: true, question: { difficulty: 'EASY' } }
   ];
   assert.strictEqual(practiceService.calculateTargetDifficulty(attemptsEasy), 'MEDIUM');
 
   // Case: MEDIUM -> HARD
-  const attemptsMedium = [
+  const attemptsMedium: AttemptWithQuestion[] = [
     { isCorrect: true, question: { difficulty: 'MEDIUM' } },
     { isCorrect: true, question: { difficulty: 'MEDIUM' } }
   ];
@@ -25,14 +25,14 @@ test('adaptive logic: high accuracy should increase difficulty', () => {
 
 test('adaptive logic: low accuracy should decrease difficulty', () => {
   // Case: HARD -> MEDIUM
-  const attemptsHard = [
+  const attemptsHard: AttemptWithQuestion[] = [
     { isCorrect: false, question: { difficulty: 'HARD' } },
     { isCorrect: false, question: { difficulty: 'HARD' } }
   ];
   assert.strictEqual(practiceService.calculateTargetDifficulty(attemptsHard), 'MEDIUM');
 
   // Case: MEDIUM -> EASY
-  const attemptsMedium = [
+  const attemptsMedium: AttemptWithQuestion[] = [
     { isCorrect: false, question: { difficulty: 'MEDIUM' } },
     { isCorrect: false, question: { difficulty: 'MEDIUM' } }
   ];
@@ -40,7 +40,7 @@ test('adaptive logic: low accuracy should decrease difficulty', () => {
 });
 
 test('adaptive logic: moderate accuracy should maintain difficulty', () => {
-  const attempts = [
+  const attempts: AttemptWithQuestion[] = [
     { isCorrect: true, question: { difficulty: 'MEDIUM' } },
     { isCorrect: false, question: { difficulty: 'MEDIUM' } }
   ];

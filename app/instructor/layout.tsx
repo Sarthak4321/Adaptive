@@ -52,19 +52,13 @@ export default function InstructorLayout({ children }: { children: React.ReactNo
   ];
 
   return (
-    <div className={`min-h-screen transition-colors duration-500 font-sans selection:bg-[#BFFF00] selection:text-black ${theme} ${
-      theme === 'dark' ? 'bg-[#030303] text-zinc-100' : 'bg-[#F9FAFB] text-zinc-900'
-    }`}>
+    <div className={`min-h-screen transition-colors duration-500 font-sans selection:bg-[#BFFF00] selection:text-black ${theme} ${theme === 'dark' ? 'bg-[#030303] text-zinc-100' : 'bg-[#F9FAFB] text-zinc-900'}`}>
       <CustomCursor />
       
       {/* Immersive Background Effects */}
       <div className="fixed inset-0 z-0 pointer-events-none">
-        <div className={`absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full opacity-20 blur-[120px] transition-colors duration-700 ${
-          theme === 'dark' ? 'bg-purple-900/40' : 'bg-purple-100'
-        }`} />
-        <div className={`absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full opacity-20 blur-[120px] transition-colors duration-700 ${
-          theme === 'dark' ? 'bg-[#BFFF00]/20' : 'bg-[#BFFF00]/30'
-        }`} />
+        <div className={`absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full opacity-20 blur-[120px] transition-colors duration-700 ${theme === 'dark' ? 'bg-purple-900/40' : 'bg-purple-100'}`} />
+        <div className={`absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full opacity-20 blur-[120px] transition-colors duration-700 ${theme === 'dark' ? 'bg-[#BFFF00]/20' : 'bg-[#BFFF00]/30'}`} />
       </div>
 
       {/* Mobile Menu Overlay - AnimatePresence */}
@@ -83,24 +77,18 @@ export default function InstructorLayout({ children }: { children: React.ReactNo
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className={`fixed left-0 top-0 z-[70] h-screen w-[280px] border-r flex flex-col lg:hidden ${
-                theme === 'dark' ? 'bg-[#0A0A0A] border-white/5 shadow-2xl' : 'bg-white border-zinc-200 shadow-2xl'
-              }`}
+              className={`fixed left-0 top-0 z-[70] h-screen w-[280px] border-r flex flex-col lg:hidden ${theme === 'dark' ? 'bg-[#0A0A0A] border-white/5 shadow-2xl' : 'bg-white border-zinc-200 shadow-2xl'}`}
             >
                <div className="p-8 pb-10 flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className={`h-8 w-8 rounded-lg flex items-center justify-center transition-colors ${
-                        theme === 'dark' ? 'bg-white text-black' : 'bg-zinc-900 text-[#BFFF00]'
-                    }`}>
+                    <div className={`h-8 w-8 rounded-lg flex items-center justify-center transition-colors ${theme === 'dark' ? 'bg-white text-black' : 'bg-zinc-900 text-[#BFFF00]'}`}>
                         <Zap className="h-4 w-4 fill-current" />
                     </div>
                     <span className="text-lg font-bold tracking-tight">Adaptive.</span>
                   </div>
                   <button 
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className={`h-8 w-8 flex items-center justify-center rounded-lg ${
-                      theme === 'dark' ? 'hover:bg-white/5 text-zinc-500' : 'hover:bg-zinc-100 text-zinc-500'
-                    }`}
+                    className={`h-8 w-8 flex items-center justify-center rounded-lg ${theme === 'dark' ? 'hover:bg-white/5 text-zinc-500' : 'hover:bg-zinc-100 text-zinc-500'}`}
                   >
                     <X size={18} />
                   </button>
@@ -114,11 +102,7 @@ export default function InstructorLayout({ children }: { children: React.ReactNo
                         key={item.path} 
                         href={item.path}
                         onClick={() => setIsMobileMenuOpen(false)}
-                        className={`group flex items-center gap-3 px-4 py-4 rounded-xl text-sm font-medium transition-all ${
-                          isActive 
-                          ? (theme === 'dark' ? 'bg-white/10 text-white' : 'bg-zinc-900 text-white')
-                          : (theme === 'dark' ? 'text-zinc-500 hover:bg-white/5' : 'text-zinc-500 hover:bg-zinc-100')
-                        }`}
+                        className={`group flex items-center gap-3 px-4 py-4 rounded-xl text-sm font-medium transition-all ${isActive ? (theme === 'dark' ? 'bg-white/10 text-white' : 'bg-zinc-900 text-white') : (theme === 'dark' ? 'text-zinc-500 hover:bg-white/5' : 'text-zinc-500 hover:bg-zinc-100')}`}
                       >
                         {item.icon}
                         {item.name}
@@ -142,9 +126,7 @@ export default function InstructorLayout({ children }: { children: React.ReactNo
       </AnimatePresence>
 
       {/* Desktop Sidebar */}
-      <aside className={`fixed left-0 top-0 z-50 h-screen w-64 border-r hidden lg:flex flex-col transition-all duration-300 ${
-        theme === 'dark' ? 'bg-[#0A0A0A]/80 border-white/5 backdrop-blur-xl' : 'bg-white border-zinc-200'
-      }`}>
+      <aside className={`fixed left-0 top-0 z-50 h-screen w-64 border-r hidden lg:flex flex-col transition-all duration-300 ${theme === 'dark' ? 'bg-[#0A0A0A]/80 border-white/5 backdrop-blur-xl' : 'bg-white border-zinc-200'}`}>
         <div className="p-8 pb-10 flex items-center gap-3">
            <div className={`h-9 w-9 rounded-xl flex items-center justify-center shadow-lg transition-colors ${
               theme === 'dark' ? 'bg-white text-black' : 'bg-zinc-900 text-[#BFFF00]'
@@ -161,11 +143,7 @@ export default function InstructorLayout({ children }: { children: React.ReactNo
               <Link 
                 key={item.path} 
                 href={item.path}
-                className={`group flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
-                  isActive 
-                  ? (theme === 'dark' ? 'bg-white/10 text-white shadow-sm' : 'bg-zinc-900 text-white shadow-md')
-                  : (theme === 'dark' ? 'text-zinc-500 hover:text-white hover:bg-white/5' : 'text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100')
-                }`}
+                className={`group flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${isActive ? (theme === 'dark' ? 'bg-white/10 text-white shadow-sm' : 'bg-zinc-900 text-white shadow-md') : (theme === 'dark' ? 'text-zinc-500 hover:text-white hover:bg-white/5' : 'text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100')}`}
               >
                 <span className={`transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:scale-110'}`}>
                   {item.icon}
@@ -177,14 +155,10 @@ export default function InstructorLayout({ children }: { children: React.ReactNo
         </nav>
 
         <div className="p-4 mt-auto space-y-2">
-           <div className={`p-4 rounded-2xl border ${
-              theme === 'dark' ? 'bg-white/5 border-white/5' : 'bg-zinc-50 border-zinc-200'
-           }`}>
+           <div className={`p-4 rounded-2xl border ${theme === 'dark' ? 'bg-white/5 border-white/5' : 'bg-zinc-50 border-zinc-200'}`}>
               <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-1">Support node</p>
               <p className="text-xs font-medium leading-relaxed mb-3">Enterprise priority active for your session.</p>
-              <button className={`w-full py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all ${
-                 theme === 'dark' ? 'bg-[#BFFF00] text-black hover:opacity-90' : 'bg-black text-[#BFFF00] hover:opacity-90'
-              }`}>
+              <button className={`w-full py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all ${theme === 'dark' ? 'bg-[#BFFF00] text-black hover:opacity-90' : 'bg-black text-[#BFFF00] hover:opacity-90'}`}>
                  Quick Help
               </button>
            </div>

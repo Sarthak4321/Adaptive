@@ -86,9 +86,6 @@ export default function Home() {
 
         <div className="mx-auto max-w-7xl px-6 w-full relative z-10">
           <div className="relative z-10 flex flex-col items-center text-center space-y-8">
-            <div className="inline-flex items-center gap-3 rounded-full border-white/10 px-6 py-2 text-[11px] font-bold uppercase tracking-[0.2em] text-[#BFFF00] shadow-inner backdrop-blur-md">
-            </div>
-
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}

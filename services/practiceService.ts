@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 
-interface AttemptWithQuestion {
+export interface AttemptWithQuestion {
   isCorrect: boolean;
   question: {
     difficulty: 'EASY' | 'MEDIUM' | 'HARD';
