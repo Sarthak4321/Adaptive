@@ -84,7 +84,7 @@ export default function Home() {
         <div className="absolute top-[20%] right-[-5%] w-[400px] h-[400px] bg-[#BFFF00]/10 blur-[150px] rounded-full pointer-events-none" />
         <div className="absolute bottom-[10%] left-[-5%] w-[300px] h-[300px] bg-purple-600/10 blur-[120px] rounded-full pointer-events-none" />
 
-        <div className="mx-auto max-w-7xl px-6 w-full relative z-10">
+        <div className="mx-auto max-w-7xl px-6 w-full relative z-10 sm:mt-12 mt-12">
           <div className="relative z-10 flex flex-col items-center text-center space-y-8">
             <motion.div
               initial={{ opacity: 0, y: 20 }}

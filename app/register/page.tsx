@@ -182,35 +182,7 @@ export default function RegisterPage() {
                   />
                 </div>
 
-                <div className="space-y-6">
-                  <label className="text-[11px] font-bold uppercase tracking-widest text-zinc-400 ml-1">
-                    Select Your Role
-                  </label>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-                    <button
-                      type="button"
-                      onClick={() => setRole('STUDENT')}
-                      className={`group flex flex-row sm:flex-col items-center sm:justify-center gap-4 p-5 sm:p-8 rounded-2xl sm:rounded-3xl border transition-all ${role === 'STUDENT'
-                        ? 'border-[#BFFF00] bg-[#BFFF00]/5 text-zinc-900'
-                        : 'border-zinc-200 bg-zinc-50/30 text-zinc-500 hover:bg-white hover:border-zinc-300'
-                        }`}
-                    >
-                      <User className={`h-5 w-5 sm:h-6 sm:w-6 ${role === 'STUDENT' ? 'text-zinc-900' : 'text-zinc-300'}`} />
-                      <span className="text-[10px] sm:text-xs font-bold uppercase tracking-widest">Student</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setRole('INSTRUCTOR')}
-                      className={`group flex flex-row sm:flex-col items-center sm:justify-center gap-4 p-5 sm:p-8 rounded-2xl sm:rounded-3xl border transition-all ${role === 'INSTRUCTOR'
-                        ? 'border-purple-500 bg-purple-50/5 text-purple-600'
-                        : 'border-zinc-200 bg-zinc-50/30 text-zinc-500 hover:bg-white hover:border-zinc-300'
-                        }`}
-                    >
-                      <GraduationCap className={`h-5 w-5 sm:h-6 sm:w-6 ${role === 'INSTRUCTOR' ? 'text-purple-500' : 'text-zinc-300'}`} />
-                      <span className="text-[10px] sm:text-xs font-bold uppercase tracking-widest">Instructor</span>
-                    </button>
-                  </div>
-                </div>
+                {/* Role selection removed - defaulting to STUDENT */}
               </div>
 
               {error && (
