@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
@@ -16,6 +16,27 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+
+  // Check for existing session
+  useEffect(() => {
+    const checkSession = async () => {
+      try {
+        const res = await fetch('/api/auth/me');
+        if (res.ok) {
+          const data = await res.json();
+          console.log('Existing session found, role:', data.user.role);
+          if (data.user.role === 'INSTRUCTOR') {
+            router.push('/instructor');
+          } else {
+            router.push('/student');
+          }
+        }
+      } catch (err) {
+        console.error('Session check failed:', err);
+      }
+    };
+    checkSession();
+  }, [router]);
 
   const handleGoogleLogin = async () => {
     setLoading(true);
@@ -36,6 +57,8 @@ export default function LoginPage() {
 
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Google login failed');
+
+      console.log('Login successful, user role:', data.user.role);
 
       if (data.user.role === 'INSTRUCTOR') {
         router.push('/instructor');
@@ -66,6 +89,8 @@ export default function LoginPage() {
       if (!res.ok) {
         throw new Error(data.error || 'Login failed');
       }
+
+      console.log('Login successful, user role:', data.user.role);
 
       if (data.user.role === 'INSTRUCTOR') {
         router.push('/instructor');

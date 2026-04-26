@@ -25,6 +25,7 @@ export async function POST(req: Request) {
       });
     }
 
+    console.log(`Google Login API: Signing JWT for ${user.email} with role ${user.role}`);
     const token = await signJWT({
       id: user.id,
       email: user.email,

@@ -206,27 +206,7 @@ export default function InstructorDashboard() {
                </div>
             </Link>
 
-            <div className="p-6 sm:p-8 rounded-[2rem] sm:rounded-[2.5rem] bg-card border border-border/5 shadow-sm space-y-4 sm:space-y-6">
-                <div className="flex items-center gap-3 sm:gap-4">
-                   <History size={16} className="text-zinc-400" />
-                   <h4 className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500">System Feed</h4>
-                </div>
-                <div className="space-y-3 sm:space-y-4">
-                   {[
-                      { text: 'Engine calibrated successfully', time: '12m ago' },
-                      { text: 'New node deployed to repository', time: '45m ago' },
-                      { text: 'System backup complete', time: '2h ago' },
-                   ].map((item, i) => (
-                      <div key={i} className="flex gap-3 sm:gap-4 items-start">
-                         <div className="mt-1 h-1.5 w-1.5 rounded-full bg-[#BFFF00] shrink-0" />
-                         <div className="space-y-0.5">
-                            <p className="text-[11px] sm:text-xs font-medium leading-none">{item.text}</p>
-                            <p className="text-[8px] sm:text-[9px] text-zinc-500 font-bold uppercase">{item.time}</p>
-                         </div>
-                      </div>
-                   ))}
-                </div>
-            </div>
+
          </div>
       </div>
     </div>

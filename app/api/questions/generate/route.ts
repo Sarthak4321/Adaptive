@@ -19,22 +19,25 @@ export async function POST(req: Request) {
     const prompt = `
       Generate ${count} multiple-choice questions for an adaptive learning platform.
       Topic: ${topic}
-      Difficulty: ${difficulty}
+      Requested Base Difficulty: ${difficulty}
       
       Requirements:
       1. Each question must have exactly 4 options.
       2. Exactly one option must be correct.
-      3. Return ONLY a valid JSON array of objects with this structure:
+      3. Assign a difficulty (EASY, MEDIUM, or HARD) to EACH question based on the complexity of the specific question. 
+         - If ${difficulty} is specified, try to aim around that, but feel free to vary it (e.g. if the user asks for HARD, you can include some MEDIUM-HARD questions).
+         - If "DYNAMIC" is specified, provide a balanced mix across the spectrum.
+      4. Return ONLY a valid JSON array of objects with this structure:
          [
            {
              "text": "Question text here?",
              "options": ["Option A", "Option B", "Option C", "Option D"],
              "correctAnswer": "The exact string of the correct option",
-             "difficulty": "${difficulty}"
+             "difficulty": "EASY or MEDIUM or HARD"
            }
          ]
-      4. Ensure the content is professional and accurate.
-      5. Do not include any markdown formatting like \`\`\`json or explanation text. Just the raw JSON.
+      5. Ensure the content is professional and accurate.
+      6. Do not include any markdown formatting like \`\`\`json or explanation text. Just the raw JSON.
     `;
 
     const result = await model.generateContent(prompt);

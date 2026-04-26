@@ -31,6 +31,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
     }
 
+    console.log(`Login API: Signing JWT for ${user.email} with role ${user.role}`);
     const token = await signJWT({
       id: user.id,
       email: user.email,

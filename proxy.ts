@@ -29,19 +29,22 @@ export async function proxy(request: NextRequest) {
   }
 
   const role = payload.role as string;
+  console.log(`Middleware: Path ${pathname}, Role ${role}`);
 
   // If logged in, prevent access to login/register (except root)
   if (isPublicRoute && pathname !== '/') {
-    const dashboard = role === 'INSTRUCTOR' ? '/instructor' : '/student/practice';
+    const dashboard = role === 'INSTRUCTOR' ? '/instructor' : '/student';
     return NextResponse.redirect(new URL(dashboard, request.url));
   }
 
   // Role-based authorization
   if (isInstructorRoute && role !== 'INSTRUCTOR') {
-    return NextResponse.redirect(new URL('/student/practice', request.url));
+    console.warn(`Middleware: Unauthorized instructor access by ${role}`);
+    return NextResponse.redirect(new URL('/student', request.url));
   }
 
   if (isStudentRoute && role !== 'STUDENT') {
+    console.warn(`Middleware: Unauthorized student access by ${role}`);
     return NextResponse.redirect(new URL('/instructor', request.url));
   }
 

@@ -57,6 +57,7 @@ export default function QuestionManager() {
   const [aiCount, setAiCount] = useState(3);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedQuestions, setGeneratedQuestions] = useState<any[]>([]);
+  const [aiDifficulty, setAiDifficulty] = useState<'DYNAMIC' | 'EASY' | 'MEDIUM' | 'HARD'>('DYNAMIC');
 
   useEffect(() => {
     fetchQuestions();
@@ -187,7 +188,11 @@ export default function QuestionManager() {
         const res = await fetch('/api/questions/generate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ topic: aiTopic, difficulty: formData.difficulty, count: aiCount })
+          body: JSON.stringify({ 
+             topic: aiTopic, 
+             difficulty: aiDifficulty, 
+             count: aiCount 
+          })
         });
 
         if (res.ok) {
@@ -337,45 +342,44 @@ export default function QuestionManager() {
                             </div>
                          </div>
 
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                             <div className="space-y-2">
-                                <label className="text-[8px] sm:text-[9px] font-black text-muted-foreground uppercase tracking-widest ml-1">Topic / Intent</label>
-                                <input 
-                                  type="text"
-                                  value={aiTopic}
-                                  onChange={e => setAiTopic(e.target.value)}
-                                  placeholder="e.g. Advanced Calculus, Rust Closures..."
-                                  className="w-full rounded-xl border border-border/20 bg-background/50 dark:bg-black/40 px-4 sm:px-5 py-3 text-[11px] sm:text-xs focus:border-[#BFFF00] outline-none transition-all"
-                                />
-                             </div>
-                             <div className="space-y-2">
-                                <label className="text-[8px] sm:text-[9px] font-black text-muted-foreground uppercase tracking-widest ml-1">Quantity</label>
-                                <div className="flex items-center gap-2">
-                                   {[3, 5, 10].map(n => (
-                                      <button
-                                         key={n}
-                                         type="button"
-                                         onClick={() => setAiCount(n)}
-                                         className={`flex-1 py-3 rounded-xl border text-[10px] font-bold transition-all ${
-                                            aiCount === n 
-                                            ? 'bg-[#BFFF00] text-black border-[#BFFF00]' 
-                                            : 'bg-white/5 border-white/10 text-zinc-500 hover:text-white'
-                                         }`}
-                                      >
-                                         {n}
-                                      </button>
-                                   ))}
-                                   <input 
-                                      type="number"
-                                      min="1"
-                                      max="20"
-                                      value={aiCount}
-                                      onChange={e => setAiCount(parseInt(e.target.value) || 1)}
-                                      className="w-16 rounded-xl border border-border/20 bg-background/50 dark:bg-black/40 px-2 py-3 text-[11px] sm:text-xs text-center focus:border-[#BFFF00] outline-none transition-all"
-                                   />
-                                </div>
-                             </div>
-                          </div>
+                           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                              <div className="sm:col-span-1 space-y-2">
+                                 <label className="text-[8px] sm:text-[9px] font-black text-muted-foreground uppercase tracking-widest ml-1">Topic / Intent</label>
+                                 <input 
+                                   type="text"
+                                   value={aiTopic}
+                                   onChange={e => setAiTopic(e.target.value)}
+                                   placeholder="e.g. Calculus..."
+                                   className="w-full rounded-xl border border-border/20 bg-background/50 dark:bg-black/40 px-4 sm:px-5 py-3 text-[11px] sm:text-xs focus:border-[#BFFF00] outline-none transition-all"
+                                 />
+                              </div>
+                              <div className="space-y-2">
+                                 <label className="text-[8px] sm:text-[9px] font-black text-muted-foreground uppercase tracking-widest ml-1">Complexity</label>
+                                 <select 
+                                    value={aiDifficulty}
+                                    onChange={e => setAiDifficulty(e.target.value as any)}
+                                    className="w-full rounded-xl border border-border/20 bg-background/50 dark:bg-black/40 px-4 py-3 text-[10px] sm:text-xs font-bold focus:border-[#BFFF00] outline-none transition-all"
+                                 >
+                                    <option value="DYNAMIC">AI Decide</option>
+                                    <option value="EASY">Force Easy</option>
+                                    <option value="MEDIUM">Force Medium</option>
+                                    <option value="HARD">Force Hard</option>
+                                 </select>
+                              </div>
+                              <div className="space-y-2">
+                                 <label className="text-[8px] sm:text-[9px] font-black text-muted-foreground uppercase tracking-widest ml-1">Quantity</label>
+                                 <div className="flex items-center gap-2">
+                                    <input 
+                                       type="number"
+                                       min="1"
+                                       max="20"
+                                       value={aiCount}
+                                       onChange={e => setAiCount(parseInt(e.target.value) || 1)}
+                                       className="w-full rounded-xl border border-border/20 bg-background/50 dark:bg-black/40 px-2 py-3 text-[11px] sm:text-xs text-center focus:border-[#BFFF00] outline-none transition-all"
+                                    />
+                                 </div>
+                              </div>
+                           </div>
 
                           {generatedQuestions.length > 0 && (
                              <div className="space-y-4 animate-in fade-in slide-in-from-top-4">

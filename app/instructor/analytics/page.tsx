@@ -26,11 +26,13 @@ import {
 export default function InstructorAnalyticsPage() {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [range, setRange] = useState('7d');
 
   useEffect(() => {
     async function fetchAnalytics() {
+      setLoading(true);
       try {
-        const res = await fetch('/api/instructor/analytics');
+        const res = await fetch(`/api/instructor/analytics?range=${range}`);
         const json = await res.json();
         setData(json);
       } catch (err) {
@@ -41,7 +43,7 @@ export default function InstructorAnalyticsPage() {
       }
     }
     fetchAnalytics();
-  }, []);
+  }, [range]);
 
   if (loading) {
     return (
@@ -52,9 +54,9 @@ export default function InstructorAnalyticsPage() {
   }
 
   const difficultyData = [
-    { label: 'EASY', height: `${data?.difficultyBreakdown?.easy ?? 0}%`, color: '#10B981', val: `${data?.difficultyBreakdown?.easy ?? 0}%` },
-    { label: 'MEDIUM', height: `${data?.difficultyBreakdown?.medium ?? 0}%`, color: '#F59E0B', val: `${data?.difficultyBreakdown?.medium ?? 0}%` },
-    { label: 'HARD', height: `${data?.difficultyBreakdown?.hard ?? 0}%`, color: '#EF4444', val: `${data?.difficultyBreakdown?.hard ?? 0}%` },
+    { label: 'EASY', height: `${data?.difficultyBreakdown?.easy?.pct ?? 0}%`, color: '#10B981', val: `${data?.difficultyBreakdown?.easy?.pct ?? 0}%`, count: data?.difficultyBreakdown?.easy?.count ?? 0 },
+    { label: 'MEDIUM', height: `${data?.difficultyBreakdown?.medium?.pct ?? 0}%`, color: '#F59E0B', val: `${data?.difficultyBreakdown?.medium?.pct ?? 0}%`, count: data?.difficultyBreakdown?.medium?.count ?? 0 },
+    { label: 'HARD', height: `${data?.difficultyBreakdown?.hard?.pct ?? 0}%`, color: '#EF4444', val: `${data?.difficultyBreakdown?.hard?.pct ?? 0}%`, count: data?.difficultyBreakdown?.hard?.count ?? 0 },
   ];
 
   const downloadReport = () => {
@@ -131,15 +133,15 @@ export default function InstructorAnalyticsPage() {
           <div class="grid">
              <div class="stat-card" style="border-left: 6px solid #10B981">
                 <div class="stat-label">Elementary Level</div>
-                <div class="stat-value">${data.difficultyBreakdown.easy}%</div>
+                <div class="stat-value">${data.difficultyBreakdown.easy.pct}%</div>
              </div>
              <div class="stat-card" style="border-left: 6px solid #F59E0B">
                 <div class="stat-label">Intermediate Level</div>
-                <div class="stat-value">${data.difficultyBreakdown.medium}%</div>
+                <div class="stat-value">${data.difficultyBreakdown.medium.pct}%</div>
              </div>
              <div class="stat-card" style="border-left: 6px solid #EF4444">
                 <div class="stat-label">Advanced Level</div>
-                <div class="stat-value">${data.difficultyBreakdown.hard}%</div>
+                <div class="stat-value">${data.difficultyBreakdown.hard.pct}%</div>
              </div>
           </div>
 
@@ -208,20 +210,36 @@ export default function InstructorAnalyticsPage() {
                {/* Accuracy History */}
                <div className="p-6 sm:p-10 rounded-[2rem] sm:rounded-[3rem] bg-white dark:bg-card border border-zinc-200 dark:border-border/10 space-y-6 sm:space-y-8 shadow-xl">
                   <div className="flex items-center justify-between">
-                     <h3 className="text-[9px] sm:text-xs font-black text-zinc-500 uppercase tracking-[0.3em] sm:tracking-[0.4em]">Accuracy Drift</h3>
+                     <div className="space-y-1">
+                        <h3 className="text-[9px] sm:text-xs font-black text-zinc-500 uppercase tracking-[0.3em] sm:tracking-[0.4em]">Accuracy Drift</h3>
+                        <div className="flex items-center gap-2">
+                           <button 
+                              onClick={() => setRange('7d')}
+                              className={`text-[8px] font-bold uppercase tracking-widest px-2 py-0.5 rounded ${range === '7d' ? 'bg-[#BFFF00] text-black' : 'text-zinc-500 hover:text-zinc-300'}`}
+                           >7D</button>
+                           <button 
+                              onClick={() => setRange('30d')}
+                              className={`text-[8px] font-bold uppercase tracking-widest px-2 py-0.5 rounded ${range === '30d' ? 'bg-[#BFFF00] text-black' : 'text-zinc-500 hover:text-zinc-300'}`}
+                           >30D</button>
+                        </div>
+                     </div>
                      <TrendingUp className="h-4 w-4 text-zinc-300" />
                   </div>
-                  <div className="h-32 sm:h-40 flex items-end justify-between gap-1.5 sm:gap-2">
+                  <div className="h-40 sm:h-48 flex items-end justify-between gap-0.5 sm:gap-1">
                     {data?.dailyAccuracy?.map((val: number, i: number) => (
-                      <div key={i} className="flex-1 flex flex-col items-center gap-2 group">
-                        <div className="relative w-full flex-1 flex flex-col justify-end">
+                      <div key={i} className="flex-1 flex flex-col items-center gap-2 group h-full">
+                        <div className="relative w-full h-full flex flex-col justify-end">
                            <motion.div 
                               initial={{ height: 0 }}
-                              animate={{ height: `${val}%` }}
-                              className="w-full bg-[#BFFF00]/20 rounded-t-lg sm:rounded-t-xl group-hover:bg-[#BFFF00]/40 transition-all border-t border-[#BFFF00]/30"
-                           />
+                              animate={{ height: `${Math.max(val, 2)}%` }}
+                              className={`w-full bg-[#BFFF00] ${range === '30d' ? 'rounded-t-[1px]' : 'rounded-t-md sm:rounded-t-lg'} transition-all border-t-2 border-white/20 relative shadow-[0_0_15px_rgba(191,255,0,0.3)]`}
+                           >
+                              <div className="absolute top-[-30px] left-1/2 -translate-x-1/2 px-2 py-1 rounded bg-zinc-900 text-[8px] font-black text-[#BFFF00] opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none border border-[#BFFF00]/20 z-50">
+                                 {val}%
+                              </div>
+                           </motion.div>
                         </div>
-                        <span className="text-[7px] sm:text-[8px] font-bold text-zinc-400">D{i+1}</span>
+                        {range === '7d' && <span className="text-[7px] sm:text-[8px] font-bold text-zinc-400">D{i+1}</span>}
                       </div>
                     ))}
                   </div>
@@ -233,18 +251,19 @@ export default function InstructorAnalyticsPage() {
                      <h3 className="text-[9px] sm:text-xs font-black text-zinc-500 uppercase tracking-[0.3em] sm:tracking-[0.4em]">Difficulty Split</h3>
                      <BarChart3 className="h-4 w-4 text-zinc-300" />
                   </div>
-                  <div className="flex items-end justify-between h-32 sm:h-40 gap-1.5 sm:gap-2">
+                  <div className="flex items-end justify-between h-40 sm:h-48 gap-1.5 sm:gap-2">
                      {difficultyData.map((bar, i) => (
-                        <div key={i} className="flex-1 flex flex-col items-center gap-3 sm:gap-4 group">
-                           <div className="relative w-full flex-1 flex flex-col justify-end">
+                        <div key={i} className="flex-1 flex flex-col items-center gap-3 sm:gap-4 group h-full">
+                           <div className="relative w-full h-full flex flex-col justify-end">
                               <motion.div 
                                  initial={{ height: 0 }}
                                  animate={{ height: bar.height }}
-                                 className="w-full rounded-t-xl sm:rounded-t-2xl opacity-20 group-hover:opacity-40 transition-opacity"
+                                 className="w-full rounded-t-lg sm:rounded-t-xl transition-all border-t-2 border-white/10"
                                  style={{ backgroundColor: bar.color }}
                               />
-                              <div className="absolute top-[-20px] left-1/2 -translate-x-1/2 text-[8px] sm:text-[9px] font-black text-zinc-900 dark:text-white opacity-0 group-hover:opacity-100 transition-opacity">
-                                 {bar.val}
+                              <div className="absolute top-[-35px] left-1/2 -translate-x-1/2 px-2 py-1.5 rounded bg-zinc-900 text-[8px] font-black text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none border border-white/10 z-50 text-center">
+                                 <div>{bar.val}</div>
+                                 <div className="text-[6px] text-zinc-500 uppercase">{bar.count} Qs</div>
                               </div>
                            </div>
                            <p className="text-[8px] sm:text-[9px] font-black uppercase tracking-[0.1em] sm:tracking-[0.2em] text-zinc-500">{bar.label}</p>
@@ -264,6 +283,7 @@ export default function InstructorAnalyticsPage() {
                   System is currently processing real-time student interaction data. Accuracy trends are stable.
                </p>
             </div>
+
          </section>
       </div>
     </div>
