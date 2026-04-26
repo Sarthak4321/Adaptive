@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle2, XCircle, Timer, Loader2, ArrowRight, ShieldCheck, BookOpen, AlertCircle, Clock, LogOut } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
+import { Skeleton } from './ui/skeleton';
 
 interface Question {
   id: string;
@@ -119,14 +120,35 @@ export default function PracticeSession() {
     });
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-[400px] flex flex-col items-center justify-center gap-6">
-        <Loader2 className="w-12 h-12 animate-spin text-blue-600" />
-        <p className="text-sm font-medium text-slate-400 uppercase tracking-[0.2em]">Synchronizing Assessment...</p>
-      </div>
-    );
-  }
+   if (loading) {
+     return (
+       <div className="max-w-4xl mx-auto w-full px-2 sm:px-4">
+          <div className="mb-4 sm:mb-12 flex items-center justify-between">
+             <div className="flex items-center gap-4">
+                <Skeleton className="h-12 w-12 rounded-2xl" />
+                <div className="space-y-2">
+                   <Skeleton className="h-3 w-20" />
+                   <Skeleton className="h-4 w-32" />
+                </div>
+             </div>
+             <Skeleton className="h-12 w-32 rounded-2xl" />
+          </div>
+          <div className="bg-white rounded-[1.5rem] sm:rounded-[3rem] border border-slate-100 p-8 sm:p-16 space-y-12">
+             <div className="space-y-4">
+                <Skeleton className="h-4 w-24" />
+                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-10 w-2/3" />
+             </div>
+             <div className="grid grid-cols-1 gap-5">
+                <Skeleton className="h-16 sm:h-24 w-full rounded-[2rem]" />
+                <Skeleton className="h-16 sm:h-24 w-full rounded-[2rem]" />
+                <Skeleton className="h-16 sm:h-24 w-full rounded-[2rem]" />
+                <Skeleton className="h-16 sm:h-24 w-full rounded-[2rem]" />
+             </div>
+          </div>
+       </div>
+     );
+   }
 
   if (!question) return null;
 

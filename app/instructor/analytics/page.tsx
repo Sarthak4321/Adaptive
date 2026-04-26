@@ -22,6 +22,7 @@ import {
   History,
   Loader2
 } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function InstructorAnalyticsPage() {
   const [data, setData] = useState<any>(null);
@@ -45,14 +46,7 @@ export default function InstructorAnalyticsPage() {
     fetchAnalytics();
   }, [range]);
 
-  if (loading) {
-    return (
-      <div className="h-[80vh] flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-[#BFFF00]" />
-      </div>
-    );
-  }
-
+  // Difficulty Data calculation moved inside return or handled for loading
   const difficultyData = [
     { label: 'EASY', height: `${data?.difficultyBreakdown?.easy?.pct ?? 0}%`, color: '#10B981', val: `${data?.difficultyBreakdown?.easy?.pct ?? 0}%`, count: data?.difficultyBreakdown?.easy?.count ?? 0 },
     { label: 'MEDIUM', height: `${data?.difficultyBreakdown?.medium?.pct ?? 0}%`, color: '#F59E0B', val: `${data?.difficultyBreakdown?.medium?.pct ?? 0}%`, count: data?.difficultyBreakdown?.medium?.count ?? 0 },
@@ -226,22 +220,28 @@ export default function InstructorAnalyticsPage() {
                      <TrendingUp className="h-4 w-4 text-zinc-300" />
                   </div>
                   <div className="h-40 sm:h-48 flex items-end justify-between gap-0.5 sm:gap-1">
-                    {data?.dailyAccuracy?.map((val: number, i: number) => (
-                      <div key={i} className="flex-1 flex flex-col items-center gap-2 group h-full">
-                        <div className="relative w-full h-full flex flex-col justify-end">
-                           <motion.div 
-                              initial={{ height: 0 }}
-                              animate={{ height: `${Math.max(val, 2)}%` }}
-                              className={`w-full bg-[#BFFF00] ${range === '30d' ? 'rounded-t-[1px]' : 'rounded-t-md sm:rounded-t-lg'} transition-all border-t-2 border-white/20 relative shadow-[0_0_15px_rgba(191,255,0,0.3)]`}
-                           >
-                              <div className="absolute top-[-30px] left-1/2 -translate-x-1/2 px-2 py-1 rounded bg-zinc-900 text-[8px] font-black text-[#BFFF00] opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none border border-[#BFFF00]/20 z-50">
-                                 {val}%
-                              </div>
-                           </motion.div>
-                        </div>
-                        {range === '7d' && <span className="text-[7px] sm:text-[8px] font-bold text-zinc-400">D{i+1}</span>}
-                      </div>
-                    ))}
+                    {loading ? (
+                       Array.from({ length: range === '7d' ? 7 : 30 }).map((_, i) => (
+                          <Skeleton key={i} className="flex-1 h-full rounded-t-lg" />
+                       ))
+                    ) : (
+                       data?.dailyAccuracy?.map((val: number, i: number) => (
+                         <div key={i} className="flex-1 flex flex-col items-center gap-2 group h-full">
+                           <div className="relative w-full h-full flex flex-col justify-end">
+                              <motion.div 
+                                 initial={{ height: 0 }}
+                                 animate={{ height: `${Math.max(val, 2)}%` }}
+                                 className={`w-full bg-[#BFFF00] ${range === '30d' ? 'rounded-t-[1px]' : 'rounded-t-md sm:rounded-t-lg'} transition-all border-t-2 border-white/20 relative shadow-[0_0_15px_rgba(191,255,0,0.3)]`}
+                              >
+                                 <div className="absolute top-[-30px] left-1/2 -translate-x-1/2 px-2 py-1 rounded bg-zinc-900 text-[8px] font-black text-[#BFFF00] opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none border border-[#BFFF00]/20 z-50">
+                                    {val}%
+                                 </div>
+                              </motion.div>
+                           </div>
+                           {range === '7d' && <span className="text-[7px] sm:text-[8px] font-bold text-zinc-400">D{i+1}</span>}
+                         </div>
+                       ))
+                    )}
                   </div>
                </div>
 
@@ -252,23 +252,29 @@ export default function InstructorAnalyticsPage() {
                      <BarChart3 className="h-4 w-4 text-zinc-300" />
                   </div>
                   <div className="flex items-end justify-between h-40 sm:h-48 gap-1.5 sm:gap-2">
-                     {difficultyData.map((bar, i) => (
-                        <div key={i} className="flex-1 flex flex-col items-center gap-3 sm:gap-4 group h-full">
-                           <div className="relative w-full h-full flex flex-col justify-end">
-                              <motion.div 
-                                 initial={{ height: 0 }}
-                                 animate={{ height: bar.height }}
-                                 className="w-full rounded-t-lg sm:rounded-t-xl transition-all border-t-2 border-white/10"
-                                 style={{ backgroundColor: bar.color }}
-                              />
-                              <div className="absolute top-[-35px] left-1/2 -translate-x-1/2 px-2 py-1.5 rounded bg-zinc-900 text-[8px] font-black text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none border border-white/10 z-50 text-center">
-                                 <div>{bar.val}</div>
-                                 <div className="text-[6px] text-zinc-500 uppercase">{bar.count} Qs</div>
+                     {loading ? (
+                        Array.from({ length: 3 }).map((_, i) => (
+                           <Skeleton key={i} className="flex-1 h-full rounded-t-2xl" />
+                        ))
+                     ) : (
+                        difficultyData.map((bar, i) => (
+                           <div key={i} className="flex-1 flex flex-col items-center gap-3 sm:gap-4 group h-full">
+                              <div className="relative w-full h-full flex flex-col justify-end">
+                                 <motion.div 
+                                    initial={{ height: 0 }}
+                                    animate={{ height: bar.height }}
+                                    className="w-full rounded-t-lg sm:rounded-t-xl transition-all border-t-2 border-white/10"
+                                    style={{ backgroundColor: bar.color }}
+                                 />
+                                 <div className="absolute top-[-35px] left-1/2 -translate-x-1/2 px-2 py-1.5 rounded bg-zinc-900 text-[8px] font-black text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none border border-white/10 z-50 text-center">
+                                    <div>{bar.val}</div>
+                                    <div className="text-[6px] text-zinc-500 uppercase">{bar.count} Qs</div>
+                                 </div>
                               </div>
+                              <p className="text-[8px] sm:text-[9px] font-black uppercase tracking-[0.1em] sm:tracking-[0.2em] text-zinc-500">{bar.label}</p>
                            </div>
-                           <p className="text-[8px] sm:text-[9px] font-black uppercase tracking-[0.1em] sm:tracking-[0.2em] text-zinc-500">{bar.label}</p>
-                        </div>
-                     ))}
+                        ))
+                     )}
                   </div>
                </div>
             </div>

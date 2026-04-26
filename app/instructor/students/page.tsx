@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
 import { 
@@ -29,6 +30,7 @@ import {
   Loader2,
   Target
 } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface Student {
   id: string;
@@ -49,10 +51,12 @@ export default function StudentManagementPage() {
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
-  const [activeTab, setActiveTab] = useState<'performance' | 'activity' | 'notes'>('performance');
+   const [activeTab, setActiveTab] = useState<'performance' | 'activity' | 'notes'>('performance');
+   const [mounted, setMounted] = useState(false);
 
-  useEffect(() => {
-    async function fetchStudents() {
+   useEffect(() => {
+      setMounted(true);
+      async function fetchStudents() {
       try {
         const res = await fetch('/api/instructor/students');
         const json = await res.json();
@@ -71,14 +75,6 @@ export default function StudentManagementPage() {
     s.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
     s.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
-  if (loading) {
-    return (
-      <div className="h-[80vh] flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-[#BFFF00]" />
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-8 sm:space-y-12 pb-24">
@@ -139,9 +135,13 @@ export default function StudentManagementPage() {
              <div className="h-8 w-8 sm:h-14 sm:w-14 rounded-lg sm:rounded-2xl bg-zinc-50 dark:bg-background flex items-center justify-center text-zinc-400 group-hover:text-[#BFFF00] transition-colors">
                 {stat.icon}
              </div>
-             <div className="space-y-0 sm:space-y-1">
+             <div className="space-y-0 sm:space-y-1 w-full">
                 <p className="text-[8px] sm:text-[11px] font-black uppercase tracking-[0.1em] sm:tracking-[0.2em] text-zinc-500">{stat.label}</p>
-                <p className="text-xl sm:text-4xl font-black text-zinc-900 dark:text-white leading-tight">{stat.value}</p>
+                {loading ? (
+                    <Skeleton className="h-6 w-16 sm:h-10 sm:w-24 mt-1" />
+                ) : (
+                    <p className="text-xl sm:text-4xl font-black text-zinc-900 dark:text-white leading-tight">{stat.value}</p>
+                )}
                 <p className="text-[7px] sm:text-[10px] font-bold text-zinc-400 uppercase tracking-widest hidden sm:block">{stat.desc}</p>
              </div>
           </motion.div>
@@ -174,7 +174,39 @@ export default function StudentManagementPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-zinc-100 dark:divide-white/5">
-                {filteredStudents.length > 0 ? filteredStudents.map((student) => (
+                {loading ? (
+                    Array.from({ length: 5 }).map((_, i) => (
+                        <tr key={i}>
+                            <td className="px-6 sm:px-10 py-6 sm:py-8">
+                                <div className="flex items-center gap-4 sm:gap-6">
+                                    <Skeleton className="h-10 w-10 sm:h-16 sm:w-16 rounded-xl sm:rounded-[1.5rem]" />
+                                    <div className="space-y-2">
+                                        <Skeleton className="h-5 w-32 sm:w-48" />
+                                        <Skeleton className="h-3 w-24 sm:w-32" />
+                                    </div>
+                                </div>
+                            </td>
+                            <td className="px-6 sm:px-10 py-6 sm:py-8">
+                                <Skeleton className="h-8 w-24 rounded-2xl" />
+                            </td>
+                            <td className="px-6 sm:px-10 py-6 sm:py-8">
+                                <div className="space-y-2 w-32 sm:w-40">
+                                    <Skeleton className="h-6 w-16" />
+                                    <Skeleton className="h-1.5 w-full rounded-full" />
+                                </div>
+                            </td>
+                            <td className="px-6 sm:px-10 py-6 sm:py-8">
+                                <div className="space-y-2">
+                                    <Skeleton className="h-4 w-20" />
+                                    <Skeleton className="h-3 w-16" />
+                                </div>
+                            </td>
+                            <td className="px-6 sm:px-10 py-6 sm:py-8 text-right">
+                                <Skeleton className="h-10 w-10 sm:h-12 sm:w-12 rounded-xl ml-auto" />
+                            </td>
+                        </tr>
+                    ))
+                ) : filteredStudents.length > 0 ? filteredStudents.map((student) => (
                   <tr 
                     key={student.id} 
                     className="group hover:bg-zinc-50 dark:hover:bg-white/[0.03] transition-all cursor-pointer"
@@ -201,7 +233,7 @@ export default function StudentManagementPage() {
                     <td className="px-6 sm:px-10 py-6 sm:py-8">
                       <div className={`inline-flex items-center gap-2 sm:gap-3 px-3 sm:px-5 py-1.5 sm:py-2 rounded-xl sm:rounded-2xl text-[8px] sm:text-[10px] font-black uppercase tracking-[0.2em] ${
                         student.status === 'Mastery' ? 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20 shadow-[0_0_15px_rgba(168,85,247,0.1)]' :
-                        student.status === 'Stable' ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.1)]' :
+                        student.status === 'Stable' ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 shadow-[0_0_15px_rgba(10,185,129,0.1)]' :
                         'bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20 shadow-[0_0_15px_rgba(239,68,68,0.1)]'
                       }`}>
                         <div className={`h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full ${
@@ -260,9 +292,10 @@ export default function StudentManagementPage() {
       </div>
 
       {/* Advanced Student Profile Modal - Fully Responsive */}
-      <AnimatePresence>
-        {selectedStudent && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-0 sm:p-4 md:p-10 overflow-hidden">
+      {mounted && createPortal(
+        <AnimatePresence>
+          {selectedStudent && (
+            <div className="fixed inset-0 z-[100] flex items-center justify-center p-0 sm:p-4 md:p-8 lg:p-12 overflow-hidden">
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -274,7 +307,7 @@ export default function StudentManagementPage() {
               initial={{ opacity: 0, scale: 0.95, y: 40 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 40 }}
-              className="relative w-full max-w-6xl h-full sm:h-[90vh] bg-white dark:bg-[#080808] rounded-none sm:rounded-[3rem] lg:rounded-[4rem] border-0 sm:border border-zinc-200 dark:border-white/10 shadow-[0_0_100px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col"
+              className="relative w-full max-w-5xl h-full sm:h-[85vh] bg-white dark:bg-[#080808] rounded-none sm:rounded-[2.5rem] lg:rounded-[3.5rem] border-0 sm:border border-zinc-200 dark:border-white/10 shadow-[0_0_100px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col"
             >
               {/* Modal Header Section - Mobile Optimized */}
               <div className="p-6 sm:p-12 pb-0 flex flex-col sm:flex-row justify-between items-start gap-6 sm:gap-10">
@@ -310,9 +343,9 @@ export default function StudentManagementPage() {
                 </div>
                 <button 
                   onClick={() => setSelectedStudent(null)}
-                  className="absolute sm:static top-6 right-6 p-3 sm:p-5 rounded-2xl sm:rounded-3xl bg-zinc-50 dark:bg-white/5 text-zinc-400 transition-all border border-zinc-100 dark:border-white/10"
+                  className="absolute top-6 right-6 sm:top-10 sm:right-10 p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-zinc-50 dark:bg-white/5 text-zinc-400 hover:text-white transition-all border border-zinc-100 dark:border-white/10 z-10"
                 >
-                  <X size={20} className="sm:size-7" />
+                  <X size={20} className="sm:size-6" />
                 </button>
               </div>
 
@@ -353,20 +386,20 @@ export default function StudentManagementPage() {
                          {/* Stats Grid - Responsive */}
                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-8">
                             {[
-                              { label: 'Global Rank', value: 'Top 2%', desc: 'Performance Peak', icon: <Star size={16} className="text-[#BFFF00]" /> },
-                              { label: 'Solve Velocity', value: `${selectedStudent.avgTime}s`, desc: 'Average per node', icon: <Clock size={16} className="text-purple-500" /> },
-                              { label: 'Precision', value: `${selectedStudent.accuracy}%`, desc: 'Accuracy rate', icon: <Target size={16} className="text-blue-500" /> },
+                               { label: 'Global Rank', value: 'Top 2%', desc: 'Performance Peak', icon: <Star size={16} className="text-[#BFFF00]" /> },
+                               { label: 'Solve Velocity', value: `${selectedStudent.avgTime}s`, desc: 'Average per node', icon: <Clock size={16} className="text-purple-500" /> },
+                               { label: 'Precision', value: `${selectedStudent.accuracy}%`, desc: 'Accuracy rate', icon: <Target size={16} className="text-blue-500" /> },
                             ].map((stat, i) => (
-                              <div key={i} className="p-6 sm:p-10 rounded-[2rem] sm:rounded-[3rem] bg-zinc-50 dark:bg-white/[0.03] border border-zinc-100 dark:border-white/5 space-y-4 sm:space-y-6">
-                                <div className="flex items-center gap-3 text-zinc-500">
-                                  {stat.icon}
-                                  <span className="text-[9px] sm:text-[11px] font-black uppercase tracking-widest">{stat.label}</span>
-                                </div>
-                                <div className="space-y-0.5 sm:space-y-1">
-                                  <p className="text-3xl sm:text-5xl font-black text-zinc-900 dark:text-white">{stat.value}</p>
-                                  <p className="text-[9px] sm:text-[10px] font-bold text-zinc-400 uppercase">{stat.desc}</p>
-                                </div>
-                              </div>
+                               <div key={i} className="p-6 sm:p-10 rounded-[2rem] sm:rounded-[3rem] bg-zinc-50 dark:bg-white/[0.03] border border-zinc-100 dark:border-white/5 space-y-4 sm:space-y-6">
+                                 <div className="flex items-center gap-3 text-zinc-500">
+                                   {stat.icon}
+                                   <span className="text-[9px] sm:text-[11px] font-black uppercase tracking-widest">{stat.label}</span>
+                                 </div>
+                                 <div className="space-y-0.5 sm:space-y-1">
+                                   <p className="text-3xl sm:text-5xl font-black text-zinc-900 dark:text-white">{stat.value}</p>
+                                   <p className="text-[9px] sm:text-[10px] font-bold text-zinc-400 uppercase">{stat.desc}</p>
+                                 </div>
+                               </div>
                             ))}
                          </div>
 
@@ -433,30 +466,30 @@ export default function StudentManagementPage() {
                       >
                          <div className="space-y-4">
                             {[
-                              { action: 'Completed "Data Structures" quiz', score: '92%', time: '2 hours ago', type: 'success' },
-                              { action: 'Started "System Design" course', score: '--', time: '5 hours ago', type: 'info' },
-                              { action: 'Failed "Advanced Logic" challenge', score: '30%', time: '1 day ago', type: 'warning' },
-                              { action: 'Mastered "Array Methods"', score: '100%', time: '2 days ago', type: 'success' },
+                               { action: 'Completed "Data Structures" quiz', score: '92%', time: '2 hours ago', type: 'success' },
+                               { action: 'Started "System Design" course', score: '--', time: '5 hours ago', type: 'info' },
+                               { action: 'Failed "Advanced Logic" challenge', score: '30%', time: '1 day ago', type: 'warning' },
+                               { action: 'Mastered "Array Methods"', score: '100%', time: '2 days ago', type: 'success' },
                             ].map((log, i) => (
-                              <div key={i} className="p-6 sm:p-8 rounded-[1.5rem] sm:rounded-[2rem] bg-zinc-50 dark:bg-white/[0.02] border border-zinc-100 dark:border-white/5 flex items-center justify-between transition-all">
-                                 <div className="flex items-center gap-4 sm:gap-6">
-                                    <div className={`h-10 w-10 sm:h-12 sm:w-12 rounded-xl flex items-center justify-center ${
-                                       log.type === 'success' ? 'bg-emerald-500/10 text-emerald-500' :
-                                       log.type === 'warning' ? 'bg-red-500/10 text-red-500' :
-                                       'bg-blue-500/10 text-blue-500'
-                                    }`}>
-                                       <ActivityIcon size={16} />
-                                    </div>
-                                    <div className="space-y-1">
-                                       <p className="text-sm sm:text-lg font-bold text-zinc-900 dark:text-white leading-tight">{log.action}</p>
-                                       <p className="text-[9px] sm:text-[10px] font-bold text-zinc-400 uppercase tracking-widest">{log.time}</p>
-                                    </div>
-                                 </div>
-                                 <div className="text-right shrink-0 ml-4">
-                                    <p className="text-xl sm:text-2xl font-black text-zinc-900 dark:text-white">{log.score}</p>
-                                    <p className="text-[8px] sm:text-[9px] font-black text-zinc-500 uppercase">Score</p>
-                                 </div>
-                              </div>
+                               <div key={i} className="p-6 sm:p-8 rounded-[1.5rem] sm:rounded-[2rem] bg-zinc-50 dark:bg-white/[0.02] border border-zinc-100 dark:border-white/5 flex items-center justify-between transition-all">
+                                  <div className="flex items-center gap-4 sm:gap-6">
+                                     <div className={`h-10 w-10 sm:h-12 sm:w-12 rounded-xl flex items-center justify-center ${
+                                        log.type === 'success' ? 'bg-emerald-500/10 text-emerald-500' :
+                                        log.type === 'warning' ? 'bg-red-500/10 text-red-500' :
+                                        'bg-blue-500/10 text-blue-500'
+                                     }`}>
+                                        <ActivityIcon size={16} />
+                                     </div>
+                                     <div className="space-y-1">
+                                        <p className="text-sm sm:text-lg font-bold text-zinc-900 dark:text-white leading-tight">{log.action}</p>
+                                        <p className="text-[9px] sm:text-[10px] font-bold text-zinc-400 uppercase tracking-widest">{log.time}</p>
+                                     </div>
+                                  </div>
+                                  <div className="text-right shrink-0 ml-4">
+                                     <p className="text-xl sm:text-2xl font-black text-zinc-900 dark:text-white">{log.score}</p>
+                                     <p className="text-[8px] sm:text-[9px] font-black text-zinc-500 uppercase">Score</p>
+                                  </div>
+                               </div>
                             ))}
                          </div>
                       </motion.div>
@@ -520,7 +553,8 @@ export default function StudentManagementPage() {
             </motion.div>
           </div>
         )}
-      </AnimatePresence>
+        </AnimatePresence>
+      , document.body)}
     </div>
   );
 }

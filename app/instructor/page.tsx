@@ -17,6 +17,7 @@ import {
   Loader2
 } from 'lucide-react';
 import Link from 'next/link';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function InstructorDashboard() {
   const [data, setData] = useState<any>(null);
@@ -43,14 +44,6 @@ export default function InstructorDashboard() {
     { label: 'Active Students', value: data?.stats?.totalStudents ?? '0', icon: <Users size={20} />, color: 'emerald' },
     { label: 'Class Accuracy', value: (data?.stats?.avgAccuracy ?? '0') + '%', icon: <TrendingUp size={20} />, color: 'lime' },
   ];
-
-  if (loading) {
-    return (
-      <div className="h-[80vh] flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-[#BFFF00]" />
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-8 sm:space-y-12">
@@ -92,9 +85,13 @@ export default function InstructorDashboard() {
                   <div className="h-8 w-8 sm:h-12 sm:w-12 rounded-lg sm:rounded-2xl bg-zinc-50 dark:bg-white/5 flex items-center justify-center text-zinc-400 shrink-0">
                      {stat.icon}
                   </div>
-                  <div className="space-y-0.5 sm:space-y-1">
+                  <div className="space-y-0.5 sm:space-y-1 w-full">
                      <p className="text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-zinc-500">{stat.label}</p>
-                     <p className="text-xl sm:text-4xl font-black leading-none">{stat.value}</p>
+                     {loading ? (
+                        <Skeleton className="h-8 w-20 sm:h-10 sm:w-32 bg-zinc-100 dark:bg-white/5" />
+                     ) : (
+                        <p className="text-xl sm:text-4xl font-black leading-none">{stat.value}</p>
+                     )}
                   </div>
                </div>
             </motion.div>
@@ -152,7 +149,23 @@ export default function InstructorDashboard() {
                </div>
 
                <div className="space-y-3 sm:space-y-4">
-                  {data?.latestActivity?.length > 0 ? data.latestActivity.map((act: any, i: number) => (
+                  {loading ? (
+                      Array.from({ length: 4 }).map((_, i) => (
+                         <div key={i} className="p-4 sm:p-6 rounded-xl sm:rounded-2xl bg-zinc-50 dark:bg-white/[0.02] border border-zinc-100 dark:border-white/5 flex items-center justify-between">
+                            <div className="flex items-center gap-3 sm:gap-6">
+                               <Skeleton className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg sm:rounded-xl bg-zinc-200 dark:bg-zinc-800" />
+                               <div className="space-y-1.5">
+                                  <Skeleton className="h-4 w-24 sm:w-32 bg-zinc-200 dark:bg-zinc-800" />
+                                  <Skeleton className="h-3 w-16 bg-zinc-200 dark:bg-zinc-800" />
+                               </div>
+                            </div>
+                            <div className="text-right space-y-1.5">
+                               <Skeleton className="h-4 w-12 ml-auto bg-zinc-200 dark:bg-zinc-800" />
+                               <Skeleton className="h-3 w-16 ml-auto bg-zinc-200 dark:bg-zinc-800" />
+                            </div>
+                         </div>
+                      ))
+                  ) : data?.latestActivity?.length > 0 ? data.latestActivity.map((act: any, i: number) => (
                      <div key={i} className="p-4 sm:p-6 rounded-xl sm:rounded-2xl bg-zinc-50 dark:bg-white/[0.02] border border-zinc-100 dark:border-white/5 flex items-center justify-between group hover:bg-zinc-100 dark:hover:bg-white/[0.04] transition-all">
                         <div className="flex items-center gap-3 sm:gap-6">
                            <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg sm:rounded-xl bg-zinc-200 dark:bg-zinc-800 flex items-center justify-center font-black text-[8px] sm:text-[10px] text-zinc-500 group-hover:text-[#BFFF00] transition-colors uppercase">

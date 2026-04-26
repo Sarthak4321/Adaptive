@@ -13,6 +13,7 @@ import {
    ChevronRight
 } from 'lucide-react';
 import CustomCursor from '@/components/CustomCursor';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface Stats {
    totalAttempts: number;
@@ -44,14 +45,6 @@ export default function StudentDashboard() {
          window.location.href = '/login';
       }
    };
-
-   if (loading) {
-      return (
-         <div className="flex min-h-screen items-center justify-center bg-[#0A0514]">
-            <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#BFFF00] border-t-transparent shadow-[0_0_15px_#BFFF00]" />
-         </div>
-      );
-   }
 
    return (
       <div className="min-h-screen bg-[#0A0514] text-white selection:bg-[#BFFF00] selection:text-black overflow-x-hidden relative">
@@ -123,11 +116,17 @@ export default function StudentDashboard() {
                         <div className="h-8 w-8 sm:h-12 sm:w-12 rounded-lg sm:rounded-2xl bg-white/5 border border-white/10 flex-shrink-0 flex items-center justify-center text-zinc-500 group-hover:text-[#BFFF00] transition-colors">
                            {stat.icon}
                         </div>
-                        <div className="space-y-0.5 sm:space-y-1">
+                        <div className="space-y-0.5 sm:space-y-1 w-full">
                            <p className="text-[8px] sm:text-[10px] font-bold uppercase tracking-widest text-zinc-500">{stat.label}</p>
                            <div className="flex items-baseline gap-1.5 sm:gap-2">
-                              <span className="text-2xl sm:text-5xl font-bold text-white tracking-tighter">{stat.val}</span>
-                              <span className="text-[8px] sm:text-[10px] font-bold uppercase tracking-[0.1em] sm:tracking-[0.2em] text-zinc-600 group-hover:text-[#BFFF00] transition-colors">{stat.unit}</span>
+                              {loading ? (
+                                 <Skeleton className="h-10 w-20 sm:h-14 sm:w-24 bg-white/5" />
+                              ) : (
+                                 <>
+                                    <span className="text-2xl sm:text-5xl font-bold text-white tracking-tighter">{stat.val}</span>
+                                    <span className="text-[8px] sm:text-[10px] font-bold uppercase tracking-[0.1em] sm:tracking-[0.2em] text-zinc-600 group-hover:text-[#BFFF00] transition-colors">{stat.unit}</span>
+                                 </>
+                              )}
                            </div>
                         </div>
                      </div>
@@ -159,7 +158,16 @@ export default function StudentDashboard() {
                         </tr>
                      </thead>
                      <tbody className="divide-y divide-white/5 text-xs">
-                        {stats?.recentAttempts && stats.recentAttempts.length > 0 ? (
+                        {loading ? (
+                            Array.from({ length: 5 }).map((_, i) => (
+                               <tr key={i}>
+                                  <td className="px-10 py-6"><Skeleton className="h-4 w-20 bg-white/5" /></td>
+                                  <td className="px-10 py-6"><Skeleton className="h-4 w-24 mx-auto bg-white/5" /></td>
+                                  <td className="px-10 py-6"><Skeleton className="h-4 w-12 bg-white/5" /></td>
+                                  <td className="px-10 py-6"><Skeleton className="h-4 w-20 ml-auto bg-white/5" /></td>
+                               </tr>
+                            ))
+                        ) : stats?.recentAttempts && stats.recentAttempts.length > 0 ? (
                            stats.recentAttempts.map((attempt, i) => (
                               <tr key={attempt.id} className="group hover:bg-white/[0.02] transition-colors">
                                  <td className="px-10 py-6 font-mono text-[10px] text-zinc-600">
@@ -192,7 +200,14 @@ export default function StudentDashboard() {
 
                {/* Mobile List View */}
                <div className="sm:hidden divide-y divide-white/5">
-                  {stats?.recentAttempts && stats.recentAttempts.length > 0 ? (
+                  {loading ? (
+                      Array.from({ length: 3 }).map((_, i) => (
+                         <div key={i} className="p-6 space-y-4 animate-pulse">
+                            <Skeleton className="h-4 w-32 bg-white/5" />
+                            <Skeleton className="h-4 w-full bg-white/5" />
+                         </div>
+                      ))
+                  ) : stats?.recentAttempts && stats.recentAttempts.length > 0 ? (
                      stats.recentAttempts.map((attempt) => (
                         <div key={attempt.id} className="p-6 space-y-4">
                            <div className="flex items-center justify-between">
@@ -221,4 +236,3 @@ export default function StudentDashboard() {
       </div>
    );
 }
-
