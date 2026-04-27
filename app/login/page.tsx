@@ -1,21 +1,33 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { ChevronRight, ArrowLeft, ShieldCheck, Mail, Lock } from 'lucide-react';
+import { ChevronRight, ArrowLeft, ShieldCheck, Mail, Lock, AlertCircle } from 'lucide-react';
 import CustomCursor from '@/components/CustomCursor';
 import { auth, googleProvider } from '@/lib/firebase';
 import { signInWithPopup } from 'firebase/auth';
 import toast from 'react-hot-toast';
 
-export default function LoginPage() {
+function LoginContent() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const errorParam = searchParams?.get('error');
+    if (errorParam === 'blocked') {
+      toast.error('ACCESS REVOKED: Your account has been restricted by an instructor.', {
+        duration: 5000,
+        icon: <AlertCircle className="text-red-500" />
+      });
+      setError('Your access has been restricted by an administrator.');
+    }
+  }, [searchParams]);
 
   // Check for existing session
   useEffect(() => {
@@ -238,5 +250,17 @@ export default function LoginPage() {
         </div>
       </motion.div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-[#F9FAFB] flex items-center justify-center font-sans text-zinc-900">
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-zinc-200 border-t-zinc-900" />
+      </div>
+    }>
+      <LoginContent />
+    </Suspense>
   );
 }

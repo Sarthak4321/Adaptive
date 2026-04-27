@@ -24,10 +24,13 @@ model User {
   password  String
   name      String?
   role      Role       @default(STUDENT)
+  isBlocked Boolean    @default(false)
   
   // Relations
   questions Question[] 
   attempts  Attempt[]  
+  sentMessages     Message[] @relation("SentMessages")
+  receivedMessages Message[] @relation("ReceivedMessages")
   
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
@@ -62,4 +65,13 @@ model Attempt {
   question     Question @relation(fields: [questionId], references: [id])
 
   createdAt    DateTime @default(now())
+}
+model Message {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  content    String
+  senderId   String   @db.ObjectId
+  sender     User     @relation("SentMessages", fields: [senderId], references: [id])
+  receiverId String   @db.ObjectId
+  receiver   User     @relation("ReceivedMessages", fields: [receiverId], references: [id])
+  createdAt  DateTime @default(now())
 }

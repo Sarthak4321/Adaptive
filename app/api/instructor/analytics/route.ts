@@ -12,14 +12,32 @@ export async function GET(request: Request) {
     });
 
     const attempts = await prisma.attempt.findMany({
-      select: { isCorrect: true, createdAt: true }
+      select: { 
+        isCorrect: true, 
+        createdAt: true,
+        question: {
+          select: { difficulty: true }
+        }
+      }
     });
 
-    // Difficulty breakdown
-    const total = questions.length || 1;
+    // Counts for breakdown
     const easyCount = questions.filter((q: any) => q.difficulty === 'EASY').length;
     const medCount = questions.filter((q: any) => q.difficulty === 'MEDIUM').length;
     const hardCount = questions.filter((q: any) => q.difficulty === 'HARD').length;
+
+    // Difficulty breakdown with performance
+    const easyAttempts = attempts.filter((a: any) => a.question?.difficulty === 'EASY');
+    const medAttempts = attempts.filter((a: any) => a.question?.difficulty === 'MEDIUM');
+    const hardAttempts = attempts.filter((a: any) => a.question?.difficulty === 'HARD');
+
+    const getAccuracy = (atts: any[]) => atts.length > 0 ? Math.round((atts.filter(a => a.isCorrect).length / atts.length) * 100) : 0;
+
+    const difficultyBreakdown = {
+      easy: { pct: getAccuracy(easyAttempts), count: easyAttempts.length, totalQs: easyCount },
+      medium: { pct: getAccuracy(medAttempts), count: medAttempts.length, totalQs: medCount },
+      hard: { pct: getAccuracy(hardAttempts), count: hardAttempts.length, totalQs: hardCount }
+    };
 
     // Accuracy over time
     const dailyAccuracy = Array.from({ length: days }, (_, i) => {
@@ -37,7 +55,7 @@ export async function GET(request: Request) {
     const totalCorrect = attempts.filter((a: any) => a.isCorrect).length;
     const overallAccuracy = totalAttempts > 0 ? Math.round((totalCorrect / totalAttempts) * 100) : 0;
 
-    // Top Students (by accuracy)
+    // Top Students
     const users = await prisma.user.findMany({
       where: { role: 'STUDENT' },
       select: { id: true, name: true, email: true, attempts: { select: { isCorrect: true } } }
@@ -57,11 +75,7 @@ export async function GET(request: Request) {
       totalQuestions: questions.length,
       totalAttempts,
       overallAccuracy,
-      difficultyBreakdown: {
-        easy: { pct: Math.round((easyCount / total) * 100), count: easyCount },
-        medium: { pct: Math.round((medCount / total) * 100), count: medCount },
-        hard: { pct: Math.round((hardCount / total) * 100), count: hardCount }
-      },
+      difficultyBreakdown,
       dailyAccuracy,
       topStudents
     });

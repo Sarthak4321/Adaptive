@@ -10,10 +10,15 @@ import {
    ArrowRight,
    Activity,
    LogOut,
-   ChevronRight
+   ChevronRight,
+   MessageSquare
 } from 'lucide-react';
 import CustomCursor from '@/components/CustomCursor';
 import { Skeleton } from '@/components/ui/skeleton';
+import ChatDialog from '@/components/ChatDialog';
+import { createPortal } from 'react-dom';
+import toast from 'react-hot-toast';
+import { useSocket } from '@/lib/useSocket';
 
 interface Stats {
    totalAttempts: number;
@@ -26,13 +31,63 @@ interface Stats {
 export default function StudentDashboard() {
    const [stats, setStats] = useState<Stats | null>(null);
    const [loading, setLoading] = useState(true);
+   const [isChatOpen, setIsChatOpen] = useState(false);
+   const [hasUnread, setHasUnread] = useState(false);
+   const [instructor, setInstructor] = useState<{ id: string, name: string } | null>(null);
+   const [studentId, setStudentId] = useState<string | null>(null);
+   const [mounted, setMounted] = useState(false);
+   const { socket, isConnected } = useSocket(studentId || '');
 
    useEffect(() => {
+      if (socket) {
+         socket.on('receive-message', (msg: any) => {
+            console.log('Socket: Incoming transmission received:', msg);
+            if (!isChatOpen) {
+               setHasUnread(true);
+               toast('New message from instructor', { icon: '💬', position: 'bottom-right' });
+            }
+         });
+
+         socket.on('new-transmission-global', (data: any) => {
+            console.log('Socket: Global transmission alert:', data);
+            if (data.receiverId === studentId && !isChatOpen) {
+               setHasUnread(true);
+               toast('New message detected in node', { icon: '🚨', position: 'bottom-right' });
+            }
+         });
+      }
+      return () => { 
+         socket?.off('receive-message'); 
+         socket?.off('new-transmission-global');
+      };
+   }, [socket, isChatOpen, studentId]);
+
+   useEffect(() => {
+      if (isChatOpen) setHasUnread(false);
+   }, [isChatOpen]);
+
+   useEffect(() => {
+      setMounted(true);
+      // Fetch stats
       fetch('/api/student/stats')
          .then(res => res.json())
          .then(data => {
             setStats(data);
             setLoading(false);
+         });
+
+      // Fetch self
+      fetch('/api/auth/me')
+         .then(res => res.json())
+         .then(data => {
+            if (data.user) setStudentId(data.user.id || data.user.sub);
+         });
+
+      // Fetch instructor
+      fetch('/api/student/instructor')
+         .then(res => res.json())
+         .then(data => {
+            if (data.id) setInstructor(data);
          });
    }, []);
 
@@ -60,7 +115,10 @@ export default function StudentDashboard() {
             <div className="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6 py-4 sm:py-5">
                <div className="flex items-center gap-2 sm:gap-3">
                   <span className="text-lg sm:text-xl font-bold tracking-tight uppercase">Adaptive.</span>
-                  <span className="text-[8px] sm:text-[10px] bg-[#BFFF00]/10 text-[#BFFF00] px-1.5 sm:px-2 py-0.5 rounded border border-[#BFFF00]/20 font-bold uppercase tracking-widest">Student Node</span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[8px] sm:text-[10px] bg-[#BFFF00]/10 text-[#BFFF00] px-1.5 sm:px-2 py-0.5 rounded border border-[#BFFF00]/20 font-bold uppercase tracking-widest">Student Node</span>
+                    <div className={`h-1.5 w-1.5 rounded-full ${isConnected ? 'bg-[#BFFF00] shadow-[0_0_8px_#BFFF00]' : 'bg-red-500 animate-pulse'}`} title={isConnected ? 'Secure Channel Online' : 'Secure Channel Offline'} />
+                  </div>
                </div>
                <button
                   onClick={handleLogout}
@@ -233,6 +291,35 @@ export default function StudentDashboard() {
                </div>
             </div>
          </main>
+
+         {/* Floating Action Button for Chat */}
+         <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => {
+               if (!instructor) {
+                  toast.error('Instructor not available for secure channel.');
+                  return;
+               }
+               setIsChatOpen(true);
+            }}
+            className="fixed bottom-6 right-6 sm:bottom-8 sm:right-8 h-12 w-12 sm:h-16 sm:w-16 rounded-full bg-[#BFFF00] text-black flex items-center justify-center shadow-[0_0_30px_rgba(191,255,0,0.3)] hover:shadow-[0_0_50px_rgba(191,255,0,0.5)] transition-all z-50 border-2 sm:border-4 border-black/20"
+         >
+            <MessageSquare className="h-5 w-5 sm:h-6 sm:w-6" />
+            {hasUnread && (
+               <span className="absolute top-[2px] right-[2px] h-3.5 w-3.5 sm:h-5 sm:w-5 bg-red-500 rounded-full border-2 border-black animate-pulse shadow-[0_0_15px_rgba(239,68,68,0.8)]" />
+            )}
+         </motion.button>
+
+         {mounted && instructor && studentId && createPortal(
+            <ChatDialog 
+               isOpen={isChatOpen}
+               onClose={() => setIsChatOpen(false)}
+               receiverId={instructor.id}
+               receiverName={instructor.name}
+               currentUserId={studentId}
+            />
+         , document.body)}
       </div>
    );
 }

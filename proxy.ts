@@ -48,6 +48,29 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL('/instructor', request.url));
   }
 
+  // Blocked check for students
+  if (role === 'STUDENT') {
+    // Use raw MongoDB to bypass stale Prisma client errors in middleware
+    const { MongoClient, ObjectId } = await import('mongodb');
+    const client = new MongoClient(process.env.DATABASE_URL!);
+    await client.connect();
+    const db = client.db();
+    
+    const user = await db.collection('User').findOne(
+      { _id: new ObjectId(payload.id as string) },
+      { projection: { isBlocked: true } }
+    );
+    
+    await client.close();
+
+    if (user?.isBlocked) {
+      console.warn(`Middleware: Blocked student access attempt by ${payload.email}`);
+      const response = NextResponse.redirect(new URL('/login?error=blocked', request.url));
+      response.cookies.delete('token');
+      return response;
+    }
+  }
+
   return NextResponse.next();
 }
 
